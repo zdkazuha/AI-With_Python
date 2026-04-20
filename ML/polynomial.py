@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.pipeline import make_pipeline
-from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
- 
+from sklearn.metrics import mean_absolute_error, mean_squared_error
+
 # 2. Генеруємо дані для навчання
 X = np.linspace(-20, 20, 40000).reshape(-1, 1)  # багато точок між -20 та 20
 Y = np.sin(X).flatten() + 0.1 * X.flatten() ** 2 + np.random.normal(0, 0.5, size=X.shape[0])
