@@ -7,7 +7,7 @@ from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.pipeline import Pipeline
 
-df = pd.read_csv('./assets/internship_candidates_final_numeric.csv')
+df = pd.read_csv('./assets/internship_candidates_cefr_final.csv')
 
 X = df[['Experience', 'Grade', 'EnglishLevel', 'Age', 'EntryTestScore']]
 y = df['Accepted']
