@@ -1,62 +1,69 @@
-import tensorflow as tf
-import numpy as np
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2' 
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
+
 import pandas as pd
-import matplotlib.pyplot as plt
-from sklearn import metrics
-from tensorflow import keras
-from tensorflow.keras import layers
+from sklearn.preprocessing import OneHotEncoder, PolynomialFeatures
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LinearRegression
-from sklearn.preprocessing import PolynomialFeatures
-from sklearn.pipeline import make_pipeline
 
-model_nn = keras.Sequential(
-    [
-        layers.Dense(16, activation="relu", input_shape=(1,)),  
-        layers.Dense(4, activation="relu"),
-        layers.Dense(1), 
-    ]
-)
+import keras
+from keras import layers
 
-model_nn.compile(optimizer="adam", loss="mse", metrics=["mae"])
+import warnings
+warnings.filterwarnings('ignore', category=UserWarning)
 
-df = pd.read_csv("./assets/fuel_consumption_vs_speed.csv")
-X = df[['speed_kmh']]
+data = {
+    'speed_kmh': [35, 95, 140, 50, 110, 80],
+    'travel_time_hours': [1.0, 2.0, 1.5, 1.2, 1.8, 1.1],
+    'engine_type': ['petrol', 'diesel', 'petrol', 'diesel', 'petrol', 'diesel'],
+    'fuel_consumption_l_per_100km': [8.5, 5.2, 10.1, 5.5, 9.2, 5.8]
+}
+
+df = pd.DataFrame(data)
+
+X = df[['speed_kmh', 'travel_time_hours', 'engine_type']]
 y = df['fuel_consumption_l_per_100km']
 
-model_nn.fit(X, y, epochs=200, verbose=0)
+preprocessor = ColumnTransformer(
+    transformers=[
+        ('cat', OneHotEncoder(), ['engine_type'])
+    ],
+    remainder='passthrough'
+)
 
-example = np.array([[35], [95], [140]])
-pred = model_nn.predict(example)
+X_transformed = preprocessor.fit_transform(X)
 
-degree = 3
-model_poly = make_pipeline(PolynomialFeatures(degree), LinearRegression())
+model_nn = keras.Sequential([
+    layers.Input(shape=(4,)),
+    layers.Dense(32, activation="relu"),
+    layers.Dense(8, activation="relu"),
+    layers.Dense(1)
+])
+
+model_nn.compile(optimizer="adam", loss="mse", metrics=["mae"])
+model_nn.fit(X_transformed, y, epochs=200, verbose="silent")
+
+model_poly = Pipeline(steps=[
+    ('preprocessor', preprocessor),
+    ('poly', PolynomialFeatures(degree=2)),
+    ('regressor', LinearRegression())
+])
+
 model_poly.fit(X, y)
 
-X_test = pd.DataFrame({'speed_kmh': [35, 95, 140]})
-y_pred = model_poly.predict(X_test)
+test_data = pd.DataFrame({
+    'speed_kmh': [35, 95, 140],
+    'travel_time_hours': [1.0, 2.0, 1.5],
+    'engine_type': ['petrol', 'diesel', 'petrol']
+})
 
-print("\n" + "="*60)
-print(f"{'Швидкість':<12} | {'Нейромережа (NN)':<18} | {'Поліном (Poly)':<15}")
-print("-" * 60)
+test_transformed = preprocessor.transform(test_data)
+nn_pred = model_nn.predict(test_transformed)
+poly_pred = model_poly.predict(test_data)
 
-for i in range(len(example)):
-    speed = example[i][0]
-    nn_val = pred[i][0]
-    poly_val = y_pred[i]
-    
-    diff = abs(nn_val - poly_val)
-    
-    print(f"{speed:<12} | {nn_val:<18.4f} | {poly_val:<15.4f}")
-
-print("-" * 60)
-print(f"Висновок: На швидкості 35 км/год різниця складає {abs(pred[0][0] - y_pred[0]):.2f} л/100км")
-print(f"Висновок: На швидкості 95 км/год різниця складає {abs(pred[1][0] - y_pred[1]):.2f} л/100км")
-print(f"Висновок: На швидкості 140 км/год різниця складає {abs(pred[2][0] - y_pred[2]):.2f} л/100км")
-print("="*60)
-
-
-nn_train_pred = model_nn.predict(X)
-poly_train_pred = model_poly.predict(X)
-
-print(f"\nMAE Нейромережі: {metrics.mean_absolute_error(y, nn_train_pred):.4f}")
-print(f"MAE Полінома:    {metrics.mean_absolute_error(y, poly_train_pred):.4f}")
+print(f"{'Швидкість':<12} | {'Нейромережа':<15} | {'Поліном':<15}")
+print("-" * 50)
+for i in range(len(test_data)):
+    print(f"{test_data.iloc[i]['speed_kmh']:<12} | {nn_pred[i][0]:<15.2f} | {poly_pred[i]:<15.2f}")

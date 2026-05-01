@@ -1,13 +1,12 @@
-from sklearn import metrics
-import tensorflow as tf
-from tensorflow import keras
-from tensorflow.keras import layers
+import keras
+from keras import layers
 import numpy as np
 
 # Build a simple NN for numeric data
 model = keras.Sequential(
     [
-        layers.Dense(16, activation="relu", input_shape=(2,)),  # 2 input features
+        layers.Input(shape=(2,)),
+        layers.Dense(16, activation="relu"),  # 2 input features
         layers.Dense(8, activation="relu"),
         layers.Dense(1),  # single numeric output (regression)
     ]
