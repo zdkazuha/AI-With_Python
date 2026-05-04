@@ -5,13 +5,10 @@ df = pd.read_csv("./assets/reviews_list.csv")
 
 reviews = df['Review Text']
 
-count = 0
-
 neutral, good, bad = [], [], []
 
 for text in reviews:
-
-    count += 1
+    
     blob = TextBlob(text)
     sentiment = blob.sentiment.polarity
 

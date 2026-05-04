@@ -1,5 +1,3 @@
-from turtle import pos
-
 import nltk
 from nltk.tokenize import word_tokenize, sent_tokenize
 from nltk.corpus import stopwords
@@ -50,7 +48,8 @@ for text in reviews:
     data["Position"].append(position)
     data["Review Text"].append(lemmatized_words)
 
+# --- 6. Запис ---
+
 df = pd.DataFrame(data)
 
-# Записуємо в CSV одним методом
 df.to_csv('./assets/reviews_list_new.csv', index=False, encoding='utf-8-sig')
