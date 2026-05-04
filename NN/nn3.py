@@ -1,12 +1,9 @@
-import numpy as np
 import pandas as pd
-import tensorflow as tf
 import matplotlib.pyplot as plt
 from sklearn.datasets import fetch_california_housing
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Dropout
 from tensorflow.keras.callbacks import EarlyStopping
 from keras import layers
 
@@ -42,10 +39,12 @@ def preprocess_data(df):
 def build_model(input_shape):
     """Builds and returns a compiled neural network model."""
     model = Sequential([
+
         layers.Input(shape=(input_shape,)),
+        layers.Dense(64, activation="relu"),
         layers.Dense(32, activation="relu"),
         layers.Dense(8, activation="relu"),
-        layers.Dense(1)
+        layers.Dense(1) 
 
        # TODO: визначити архітектуру моделі
     ])
