@@ -14,8 +14,8 @@ while True:
     prompt = input('\n\nНапишіть свій prompt до локального чат-бота :: ')
 
     if(prompt == '' or prompt == ' '):
-        print("Ваш запит є некоректним напишіть заново")
-        break
+        print("Ваш запит є некоректним напишіть заново", end='')
+        continue
     else:
         payload["prompt"] = prompt
 
