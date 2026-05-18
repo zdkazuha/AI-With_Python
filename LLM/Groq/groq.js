@@ -42,19 +42,44 @@ async function get_ai_response(user_text) {
     }
 }
 
+let messages = [{"role": "assistant", "content": "Привіт чим я можу допомогти?"}];
+
 const button = document.getElementById('start');
 const input = document.getElementById('user_text');
-const output = document.getElementById('output');
+const list = document.getElementById('list');
 
 button.addEventListener('click', async () => {
 
     const user_text = input.value.trim();
 
-    output.textContent = 'Думаю...';
+    if (!user_text) return;
+
+    // if (user_text == "clear") {
+    //     list.innerHTML = ''; 
+    //     return;
+    // }
+
+    messages.push({"role": "user", "content": user_text})
+
+    const userLi = document.createElement('li');
+    userLi.textContent = `Ви: ${user_text}`;
+    userLi.classList.add('user-msg'); 
+    list.appendChild(userLi)
+
+    input.value = '';
+
+    input.value = 'Думаю...';
 
     const response = await get_ai_response(user_text)
+    
+    input.value = '';
 
-    output.textContent = response;
+    messages.push({"role": "assistant", "content": response})
+
+    const AILi = document.createElement('li');
+    aiLi.textContent = `ШІ: ${response}`;
+    aiLi.classList.add('ai-msg');
+    list.appendChild(aiLi);
     
     console.log('Кнопку було натиснуто успішно.');
 });
