@@ -7,11 +7,12 @@ app.use(express.json());
 
 /*
     MCP Tool:
-    get_products(category)
+    get_products()
+    get_categories()
+    get_products_by_category(category_id)
 */
 
 app.get("/products", async (req, res) => {
-
     try {
 
         const db = await getConnection();
@@ -39,7 +40,6 @@ app.get("/products", async (req, res) => {
 });
 
 app.get("/categories", async (req, res) => {
-
     try {
 
         const db = await getConnection();
@@ -67,7 +67,6 @@ app.get("/categories", async (req, res) => {
 });
 
 app.get("/products/:categoryId", async (req, res) => {
-
     try {
 
         const categoryId = req.params.categoryId;
@@ -83,7 +82,7 @@ app.get("/products/:categoryId", async (req, res) => {
             `);
 
         res.json({
-            tool: "get_products",
+            tool: "get_products_by_category",
             categoryId: categoryId,
             count: result.recordset.length,
             products: result.recordset
@@ -99,7 +98,39 @@ app.get("/products/:categoryId", async (req, res) => {
   } 
 });
 
+app.get("/categories/:categoryId/:topN", async (req, res) => {
+    try {
+        const { categoryId, topN } = req.query;
+
+        const db = await getConnection();
+
+        const result = await db.request()
+            .input("categoryId", categoryId)
+            .input("topN", topN)
+            .query(`
+                SELECT TOP (@topN) *
+                FROM Products
+                WHERE CategoryId = @categoryId
+                ORDER BY Price DESC
+            `);
+
+        res.json({
+            tool: "get_top_products",
+            categoryId: categoryId,
+            topN: topN,
+            count: result.recordset.length,
+            products: result.recordset
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            error: error.message
+        });
+    }
+});
+
 app.listen(3000, () => {
 
-    console.log("MCP Server running on port 3000");
+    console.log("Product REST API Server running on port 3000");
 });
