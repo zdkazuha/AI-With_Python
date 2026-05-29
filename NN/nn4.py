@@ -45,14 +45,11 @@ model.evaluate(X_test, y_test)
 sample = np.array([[1, 0, 26, 1, 0, 31.2833, 0, 0, 0]])
 sample_scaled = scaler.transform(sample)
 
-prediction = model.predict(sample_scaled, verbose=0) # verbose=0 прибирає зайвий прогрес-бар
+prediction = model.predict(sample_scaled, verbose=0) 
 probability = prediction[0][0]
 
-status = "ВИЖИВ(ЛА)" if probability > 0.5 else "ЗАГИНУВ(ЛА)"
+status = "Вижив(Ла)" if probability > 0.5 else "Загинув(Ла)"
 
-# 3. Виводимо результат
-print("-" * 30)
-print(f"ПРОГНОЗ МОДЕЛІ:")
+print("-" * 50)
+print(f"Прогноз:")
 print(f"Статус: {status}")
-print(f"Ймовірність виживання: {probability:.2%}") # .2% автоматично множить на 100 і додає знак %
-print("-" * 30)
